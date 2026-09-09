@@ -24,19 +24,25 @@ A lightweight web application for students to buy, sell, and exchange second-han
 
 ## Project Structure
    
-   campus-market-poc/
-   ├── app.py # Flask application entry point
-   ├── models.py # Database initialization
-   ├── requirements.txt
-   ├── static/
-   │ ├── css/style.css
-   │ ├── js/api.js
-   │ ├── js/main.js
-   │ └── images/default.png
-   ├── templates/index.html
-   ├── uploads/ # Created at runtime
-   └── data.db # Created at runtime
-
+```
+campus-market-poc/
+├── app.py                # Flask application entry point
+├── models.py             # Database initialization
+├── requirements.txt
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   ├── api.js        # API request wrapper
+│   │   └── main.js       # Frontend logic
+│   └── images/
+│       └── default.png   # Placeholder image
+├── templates/
+│   └── index.html        # Single-page HTML template
+├── uploads/              # Uploaded images (created at runtime)
+├── data.db               # SQLite database file (created at runtime)
+└── README.md
+```
 ## Setup and Run
 
 ### Prerequisites
