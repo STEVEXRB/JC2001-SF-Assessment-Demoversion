@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Secondhand Market</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Top navigation -->
+    <header>
+        <div class="container nav-bar">
+            <h1 class="logo">🎓 Campus Secondhand</h1>
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search items...">
+                <button id="search-btn">Search</button>
+            </div>
+            <div class="nav-actions">
+                <button id="home-btn">Home</button>
+                <button id="publish-btn" class="hidden-when-logout">Publish Item</button>
+                <button id="profile-btn" class="hidden-when-logout">Profile</button>
+                <button id="login-btn">Login/Register</button>
+                <button id="logout-btn" class="hidden-when-logout">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content area -->
+    <main class="container">
+        <!-- home view -->
+        <section id="home-view">
+            <div class="filter-bar">
+                <select id="category-filter">
+                    <option value="">All Categories</option>
+                    <option value="textbook">Textbook</option>
+                    <option value="digital">Digital</option>
+                    <option value="daily_use">Daily Use</option>
+                    <option value="sports_equipment">Sports Equipment</option>
+                    <option value="other">Other</option>
+                </select>
+                <select id="sort-select">
+                    <option value="latest">Latest</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                </select>
+            </div>
+            <div id="item-grid" class="item-grid"></div>
+            <div class="pagination">
+                <button id="prev-page">Previous</button>
+                <span id="page-info">Page 1</span>
+                <button id="next-page">Next</button>
+            </div>
+        </section>
+
+        <!-- Detail view -->
+        <section id="detail-view" class="hidden">
+            <button id="back-btn">← Back</button>
+            <div id="detail-content"></div>
+        </section>
+
+        <!-- Publish view -->
+        <section id="publish-view" class="hidden">
+            <h2>publish item</h2>
+            <form id="publish-form">
+                <label>title：<input type="text" id="item-title" required></label><br>
+                <label>description：<textarea id="item-desc" rows="3"></textarea></label><br>
+                <label>price：<input type="number" id="item-price" step="0.01" required></label><br>
+                <label>category：
+                    <select id="item-category">
+                        <option value="textbook">Textbook</option>
+                        <option value="digital">Digital</option>
+                        <option value="daily_use">Daily Use</option>
+                        <option value="sports_equipment">Sports Equipment</option>
+                        <option value="other">Other</option>
+                    </select>
+                </label><br>
+                <label>condition：
+                    <select id="item-condition">
+                        <option value="new">new</option>
+                        <option value="like_new">like new</option>
+                        <option value="good">good</option>
+                        <option value="fair">fair</option>
+                    </select>
+                </label><br>
+                <label>images(at most 3)：<input type="file" id="item-images" accept="image/*" multiple></label><br>
+                <div id="image-preview"></div>
+                <button type="submit">publish</button>
+            </form>
+            <div id="upload-status"></div>
+        </section>
+
+        <!-- Authentication view -->
+        <section id="auth-view" class="hidden">
+            <div class="auth-tabs">
+                <button id="tab-login" class="active">Login</button>
+                <button id="tab-register">Register</button>
+            </div>
+            <form id="login-form">
+                <h3>Login</h3>
+                <input type="text" id="login-username" placeholder="Username" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <form id="register-form" class="hidden">
+                <h3>Register</h3>
+                <input type="text" id="reg-username" placeholder="Username" required>
+                <input type="password" id="reg-password" placeholder="Password" required>
+                <input type="text" id="reg-nickname" placeholder="Nickname (optional)">
+                <input type="email" id="reg-email" placeholder="Email (optional)">
+                <input type="text" id="reg-student-id" placeholder="Student ID (optional)">
+                <button type="submit">Register</button>
+            </form>
+        </section>
+
+        <!-- Profile view -->
+        <section id="profile-view" class="hidden">
+            <h2>Profile</h2>
+            <div class="profile-tabs">
+                <button id="tab-my-items" class="active">my items</button>
+                <button id="tab-my-favorites">my favorites</button>
+                <button id="tab-my-sold">my sold</button>
+                <button id="tab-messages">messages</button>
+            </div>
+            <div id="profile-content"></div>
+        </section>
+    </main>
+
+    <!-- Message modal (simplified, can be optimized later) -->
+    <div id="message-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" id="close-message-modal">&times;</span>
+            <h3>contact with <span id="message-receiver"></span> </h3>
+            <div id="message-list" class="message-list"></div>
+            <div class="message-input">
+                <input type="text" id="message-text" placeholder="key in your message...">
+                <button id="send-message-btn">send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
