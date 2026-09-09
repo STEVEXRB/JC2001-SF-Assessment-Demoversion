@@ -1,4 +1,5 @@
 // main.js - frontend page logic
+let currentSellerId = null;
 let currentUser = null;
 let currentPage = 1;
 let totalPages = 1;
@@ -204,6 +205,7 @@ async function openDetail(itemId) {
         const res = await API.getItemDetail(itemId);
         const item = res.data;
         currentDetailItemId = itemId;
+        currentSellerId = item.seller_id;
         const container = document.getElementById('detail-content');
         container.innerHTML = `
             <h2>${item.title}</h2>
@@ -442,13 +444,11 @@ function renderMessages(messages) {
 
 // ---------- Private messages ----------
 function openMessageModal() {
-    // Get seller ID from the detail page
-    const sellerId = document.querySelector('#detail-content')?.dataset?.sellerId;
-    if (!sellerId) {
+    if (!currentSellerId) {
         alert('Unable to get seller information');
         return;
     }
-    openConversation(sellerId);
+    openConversation(currentSellerId);
 }
 
 async function openConversation(otherUserId) {
