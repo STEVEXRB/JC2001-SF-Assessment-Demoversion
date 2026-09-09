@@ -430,23 +430,30 @@ def send_message():
 @app.route('/api/messages', methods=['GET'])
 @login_required
 def get_messages():
-    """Get the current user's private message list (grouped by other user, showing the last message in each conversation)"""
+    """Retrieve the current user's list of private messages (grouped by other users, and displaying the last message of each conversation)"""
     conn = models.get_db()
     user_id = session['user_id']
-    # Query the last message from each other user
+    
+    # Find the ID of the last message in each conversation
     rows = conn.execute('''
-        SELECT m1.*, u.nickname AS other_nickname
-        FROM messages m1
-        JOIN users u ON (CASE WHEN m1.sender_id = ? THEN m1.receiver_id ELSE m1.sender_id END) = u.id
-        JOIN (
-            SELECT MAX(id) AS max_id,
-                   CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END AS other_id
+        SELECT m.*, u.nickname AS other_nickname
+        FROM messages m
+        JOIN users u ON u.id = CASE
+            WHEN m.sender_id = ? THEN m.receiver_id
+            ELSE m.sender_id
+        END
+        WHERE m.id IN (
+            SELECT MAX(id)
             FROM messages
             WHERE sender_id = ? OR receiver_id = ?
-            GROUP BY other_id
-        ) m2 ON m1.id = m2.max_id
-        ORDER BY m1.created_at DESC
-    ''', (user_id, user_id, user_id, user_id, user_id)).fetchall()
+            GROUP BY CASE
+                WHEN sender_id = ? THEN receiver_id
+                ELSE sender_id
+            END
+        )
+        ORDER BY m.created_at DESC
+    ''', (user_id, user_id, user_id, user_id)).fetchall()
+    
     conn.close()
     return jsonify({'code': 200, 'data': [dict(r) for r in rows]})
 
