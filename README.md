@@ -23,7 +23,7 @@ A lightweight web application for students to buy, sell, and exchange second-han
 - **Image Storage**: Local filesystem (`uploads/` directory)
 
 ## Project Structure
-
+```bash
 campus-market-poc/
 ├── app.py # Flask application entry point
 ├── models.py # Database initialization
@@ -50,11 +50,14 @@ campus-market-poc/
    cd campus-market-poc
 
 2. Install dependencies:
+   ```bash
    pip install -r requirements.txt
 
-3. Run the application:
+4. Run the application:
+   ```bash
    python app.py
 
 ### Run as Single Executable (Optional)
+   ```bash
    pip install pyinstaller
    pyinstaller --onefile --add-data "templates;templates" --add-data "static;static" app.py
