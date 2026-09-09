@@ -23,19 +23,19 @@ A lightweight web application for students to buy, sell, and exchange second-han
 - **Image Storage**: Local filesystem (`uploads/` directory)
 
 ## Project Structure
-```bash
-campus-market-poc/
-├── app.py # Flask application entry point
-├── models.py # Database initialization
-├── requirements.txt
-├── static/
-│ ├── css/style.css
-│ ├── js/api.js
-│ ├── js/main.js
-│ └── images/default.png
-├── templates/index.html
-├── uploads/ # Created at runtime
-└── data.db # Created at runtime
+   ```bash
+   campus-market-poc/
+   ├── app.py # Flask application entry point
+   ├── models.py # Database initialization
+   ├── requirements.txt
+   ├── static/
+   │ ├── css/style.css
+   │ ├── js/api.js
+   │ ├── js/main.js
+   │ └── images/default.png
+   ├── templates/index.html
+   ├── uploads/ # Created at runtime
+   └── data.db # Created at runtime
 
 ## Setup and Run
 
