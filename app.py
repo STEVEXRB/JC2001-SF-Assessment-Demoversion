@@ -15,31 +15,31 @@ import models
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-in-production'
 
-# 配置上传文件夹
+# Configure the upload folder
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 
-# 确保上传目录存在
+# Ensure the upload directory exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# ------------------ 辅助函数 ------------------
+# ------------------ Helper functions ------------------
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def login_required(f):
-    """装饰器：要求登录"""
+    """Decorator: requires login"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
-            return jsonify({'code': 401, 'msg': '请先登录'}), 401
+            return jsonify({'code': 401, 'msg': 'Please log in first'}), 401
         return f(*args, **kwargs)
     return decorated_function
 
 def get_current_user():
-    """获取当前登录用户信息"""
+    """Get the current logged-in user's information"""
     if 'user_id' not in session:
         return None
     conn = models.get_db()
@@ -47,7 +47,7 @@ def get_current_user():
     conn.close()
     return dict(user) if user else None
 
-# ------------------ 页面路由 ------------------
+# ------------------ Page routes ------------------
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -56,7 +56,7 @@ def index():
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-# ------------------ 用户 API ------------------
+# ------------------ User API ------------------
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -67,16 +67,16 @@ def register():
     student_id = data.get('student_id', '').strip()
 
     if not username or not password:
-        return jsonify({'code': 400, 'msg': '用户名和密码不能为空'}), 400
+        return jsonify({'code': 400, 'msg': 'Username and password cannot be empty'}), 400
 
     conn = models.get_db()
-    # 检查用户名是否已存在
+    # Check whether the username already exists
     existing = conn.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone()
     if existing:
         conn.close()
-        return jsonify({'code': 400, 'msg': '用户名已被注册'}), 400
+        return jsonify({'code': 400, 'msg': 'Username has already been registered'}), 400
 
-    # 密码哈希
+    # Password hashing
     password_hash = generate_password_hash(password)
     conn.execute(
         'INSERT INTO users (username, password_hash, nickname, email, student_id) VALUES (?, ?, ?, ?, ?)',
@@ -84,7 +84,7 @@ def register():
     )
     conn.commit()
     conn.close()
-    return jsonify({'code': 200, 'msg': '注册成功'})
+    return jsonify({'code': 200, 'msg': 'Registration successful'})
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -97,30 +97,30 @@ def login():
     conn.close()
 
     if not user or not check_password_hash(user['password_hash'], password):
-        return jsonify({'code': 401, 'msg': '用户名或密码错误'}), 401
+        return jsonify({'code': 401, 'msg': 'Incorrect username or password'}), 401
 
     session['user_id'] = user['id']
-    return jsonify({'code': 200, 'msg': '登录成功', 'data': {'id': user['id'], 'username': user['username']}})
+    return jsonify({'code': 200, 'msg': 'Login successful', 'data': {'id': user['id'], 'username': user['username']}})
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
     session.pop('user_id', None)
-    return jsonify({'code': 200, 'msg': '已退出登录'})
+    return jsonify({'code': 200, 'msg': 'Logged out successfully'})
 
 @app.route('/api/user/me', methods=['GET'])
 @login_required
 def get_me():
     user = get_current_user()
     if user:
-        # 不返回密码哈希等敏感信息
+        # Do not return sensitive information such as password hashes
         safe_user = {k: user[k] for k in ['id', 'username', 'nickname', 'email', 'student_id', 'avatar', 'created_at']}
         return jsonify({'code': 200, 'data': safe_user})
-    return jsonify({'code': 401, 'msg': '未登录'}), 401
+    return jsonify({'code': 401, 'msg': 'Not logged in'}), 401
 
-# ------------------ 商品 API ------------------
+# ------------------ Item API ------------------
 @app.route('/api/items', methods=['GET'])
 def get_items():
-    """商品列表，支持 keyword, category, status, page, sort"""
+    """Product list, supports keyword, category, status, page, sort"""
     keyword = request.args.get('keyword', '').strip()
     category = request.args.get('category', '').strip()
     status = request.args.get('status', '').strip()
@@ -145,7 +145,7 @@ def get_items():
         query += " AND i.status = ? "
         params.append(status)
 
-    # 排序
+    # Sorting
     if sort == 'price_asc':
         query += " ORDER BY i.price ASC "
     elif sort == 'price_desc':
@@ -158,7 +158,7 @@ def get_items():
 
     conn = models.get_db()
     items = conn.execute(query, params).fetchall()
-    # 查询总数（用于分页）
+    # Query total count (for pagination)
     count_query = "SELECT COUNT(*) FROM items i WHERE 1=1 "
     count_params = []
     if keyword:
@@ -187,7 +187,7 @@ def get_items():
 
 @app.route('/api/items/<int:item_id>', methods=['GET'])
 def get_item_detail(item_id):
-    """商品详情"""
+    """Item details"""
     conn = models.get_db()
     item = conn.execute('''
         SELECT i.*, u.nickname AS seller_nickname, u.email AS seller_email
@@ -196,13 +196,13 @@ def get_item_detail(item_id):
     ''', (item_id,)).fetchone()
     if not item:
         conn.close()
-        return jsonify({'code': 404, 'msg': '商品不存在'}), 404
+        return jsonify({'code': 404, 'msg': 'Item does not exist'}), 404
 
-    # 获取所有图片
+    # Get all images
     images = conn.execute('SELECT file_path FROM images WHERE item_id = ?', (item_id,)).fetchall()
     image_list = [row['file_path'] for row in images]
 
-    # 获取留言
+    # Get comments
     comments = conn.execute('''
         SELECT c.*, u.nickname AS user_nickname
         FROM comments c JOIN users u ON c.user_id = u.id
@@ -220,22 +220,22 @@ def get_item_detail(item_id):
 @app.route('/api/items', methods=['POST'])
 @login_required
 def create_item():
-    """发布商品（包含图片文件名列表）"""
+    """Publish an item (including a list of image filenames)"""
     data = request.get_json()
     title = data.get('title', '').strip()
     description = data.get('description', '').strip()
     price = data.get('price')
     category = data.get('category', '').strip()
     condition = data.get('condition', '').strip()
-    images = data.get('images', [])  # 图片文件名列表，需要先通过上传接口获得
+    images = data.get('images', [])  # List of image filenames; obtain them via the upload API first
 
     if not title or not price:
-        return jsonify({'code': 400, 'msg': '标题和价格不能为空'}), 400
+        return jsonify({'code': 400, 'msg': 'Title and price cannot be empty'}), 400
 
     try:
         price = float(price)
     except ValueError:
-        return jsonify({'code': 400, 'msg': '价格格式不正确'}), 400
+        return jsonify({'code': 400, 'msg': 'Price format is incorrect'}), 400
 
     user_id = session['user_id']
     conn = models.get_db()
@@ -246,27 +246,27 @@ def create_item():
     ''', (user_id, title, description, price, category, condition))
     item_id = cursor.lastrowid
 
-    # 插入图片记录
+    # Insert image records
     for img_name in images:
         cursor.execute('INSERT INTO images (item_id, file_path) VALUES (?, ?)', (item_id, img_name))
 
     conn.commit()
     conn.close()
-    return jsonify({'code': 200, 'msg': '发布成功', 'data': {'item_id': item_id}})
+    return jsonify({'code': 200, 'msg': 'Published successfully', 'data': {'item_id': item_id}})
 
 @app.route('/api/items/<int:item_id>', methods=['PUT'])
 @login_required
 def update_item(item_id):
-    """更新商品信息（仅卖家）"""
+    """Update item information (seller only)"""
     data = request.get_json()
     conn = models.get_db()
     item = conn.execute('SELECT * FROM items WHERE id = ?', (item_id,)).fetchone()
     if not item:
         conn.close()
-        return jsonify({'code': 404, 'msg': '商品不存在'}), 404
+        return jsonify({'code': 404, 'msg': 'Item does not exist'}), 404
     if item['seller_id'] != session['user_id']:
         conn.close()
-        return jsonify({'code': 403, 'msg': '无权操作'}), 403
+        return jsonify({'code': 403, 'msg': 'No permission to perform this action'}), 403
 
     title = data.get('title', item['title'])
     description = data.get('description', item['description'])
@@ -278,7 +278,7 @@ def update_item(item_id):
         price = float(price)
     except ValueError:
         conn.close()
-        return jsonify({'code': 400, 'msg': '价格格式不正确'}), 400
+        return jsonify({'code': 400, 'msg': 'Price format is incorrect'}), 400
 
     conn.execute('''
         UPDATE items SET title=?, description=?, price=?, category=?, condition=?, updated_at=?
@@ -286,33 +286,33 @@ def update_item(item_id):
     ''', (title, description, price, category, condition, datetime.now(), item_id))
     conn.commit()
     conn.close()
-    return jsonify({'code': 200, 'msg': '更新成功'})
+    return jsonify({'code': 200, 'msg': 'Updated successfully'})
 
 @app.route('/api/items/<int:item_id>', methods=['DELETE'])
 @login_required
 def delete_item(item_id):
-    """下架商品（软删除，状态改为 OFF_SHELF）"""
+    """Take item offline (soft delete, status changed to OFF_SHELF)"""
     conn = models.get_db()
     item = conn.execute('SELECT * FROM items WHERE id = ?', (item_id,)).fetchone()
     if not item:
         conn.close()
-        return jsonify({'code': 404, 'msg': '商品不存在'}), 404
+        return jsonify({'code': 404, 'msg': 'Item does not exist'}), 404
     if item['seller_id'] != session['user_id']:
         conn.close()
-        return jsonify({'code': 403, 'msg': '无权操作'}), 403
+        return jsonify({'code': 403, 'msg': 'No permission to perform this action'}), 403
 
     conn.execute("UPDATE items SET status='OFF_SHELF', updated_at=? WHERE id=?", (datetime.now(), item_id))
     conn.commit()
     conn.close()
-    return jsonify({'code': 200, 'msg': '商品已下架'})
+    return jsonify({'code': 200, 'msg': 'Item has been taken offline'})
 
-# ------------------ 图片上传 API ------------------
+# ------------------ Image upload API ------------------
 @app.route('/api/upload', methods=['POST'])
 @login_required
 def upload_image():
-    """上传单张或多张图片，返回文件名列表"""
+    """Upload one or more images and return a list of filenames"""
     if 'files' not in request.files:
-        return jsonify({'code': 400, 'msg': '没有文件'}), 400
+        return jsonify({'code': 400, 'msg': 'No file uploaded'}), 400
 
     files = request.files.getlist('files')
     saved_names = []
@@ -320,23 +320,23 @@ def upload_image():
         if file and allowed_file(file.filename):
             original = secure_filename(file.filename)
             ext = original.rsplit('.', 1)[1].lower()
-            # 生成唯一文件名
+            # Generate a unique filename
             new_name = f"{uuid.uuid4().hex}.{ext}"
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_name))
             saved_names.append(new_name)
         else:
-            return jsonify({'code': 400, 'msg': '不支持的文件类型'}), 400
+            return jsonify({'code': 400, 'msg': 'Unsupported file type'}), 400
 
     return jsonify({'code': 200, 'data': saved_names})
 
-# ------------------ 收藏 API ------------------
+# ------------------ Favorite API ------------------
 @app.route('/api/favorites', methods=['POST'])
 @login_required
 def add_favorite():
     data = request.get_json()
     item_id = data.get('item_id')
     if not item_id:
-        return jsonify({'code': 400, 'msg': '缺少 item_id'}), 400
+        return jsonify({'code': 400, 'msg': 'Missing item_id'}), 400
 
     conn = models.get_db()
     try:
@@ -344,9 +344,9 @@ def add_favorite():
         conn.commit()
     except sqlite3.IntegrityError:
         conn.close()
-        return jsonify({'code': 400, 'msg': '已收藏过该商品'}), 400
+        return jsonify({'code': 400, 'msg': 'This item has already been favorited'}), 400
     conn.close()
-    return jsonify({'code': 200, 'msg': '收藏成功'})
+    return jsonify({'code': 200, 'msg': 'Favorite added successfully'})
 
 @app.route('/api/favorites/<int:item_id>', methods=['DELETE'])
 @login_required
@@ -355,12 +355,12 @@ def remove_favorite(item_id):
     conn.execute('DELETE FROM favorites WHERE user_id = ? AND item_id = ?', (session['user_id'], item_id))
     conn.commit()
     conn.close()
-    return jsonify({'code': 200, 'msg': '取消收藏成功'})
+    return jsonify({'code': 200, 'msg': 'Favorite removed successfully'})
 
 @app.route('/api/favorites', methods=['GET'])
 @login_required
 def get_favorites():
-    """获取我的收藏列表"""
+    """Get my favorites list"""
     conn = models.get_db()
     rows = conn.execute('''
         SELECT i.*, u.nickname AS seller_nickname,
@@ -374,7 +374,7 @@ def get_favorites():
     conn.close()
     return jsonify({'code': 200, 'data': [dict(r) for r in rows]})
 
-# ------------------ 留言 API ------------------
+# ------------------ Comment API ------------------
 @app.route('/api/items/<int:item_id>/comments', methods=['GET'])
 def get_comments(item_id):
     conn = models.get_db()
@@ -393,16 +393,16 @@ def add_comment(item_id):
     data = request.get_json()
     content = data.get('content', '').strip()
     if not content:
-        return jsonify({'code': 400, 'msg': '留言内容不能为空'}), 400
+        return jsonify({'code': 400, 'msg': 'Comment content cannot be empty'}), 400
 
     conn = models.get_db()
     conn.execute('INSERT INTO comments (item_id, user_id, content) VALUES (?, ?, ?)',
                  (item_id, session['user_id'], content))
     conn.commit()
     conn.close()
-    return jsonify({'code': 200, 'msg': '留言成功'})
+    return jsonify({'code': 200, 'msg': 'Comment posted successfully'})
 
-# ------------------ 私信 API ------------------
+# ------------------ Private message API ------------------
 @app.route('/api/messages', methods=['POST'])
 @login_required
 def send_message():
@@ -412,28 +412,28 @@ def send_message():
     item_id = data.get('item_id')
 
     if not receiver_id or not content:
-        return jsonify({'code': 400, 'msg': '缺少接收者或消息内容'}), 400
+        return jsonify({'code': 400, 'msg': 'Missing recipient or message content'}), 400
 
     conn = models.get_db()
-    # 检查接收者是否存在
+    # Check whether the recipient exists
     receiver = conn.execute('SELECT id FROM users WHERE id = ?', (receiver_id,)).fetchone()
     if not receiver:
         conn.close()
-        return jsonify({'code': 404, 'msg': '接收者不存在'}), 404
+        return jsonify({'code': 404, 'msg': 'Recipient does not exist'}), 404
 
     conn.execute('INSERT INTO messages (sender_id, receiver_id, item_id, content) VALUES (?, ?, ?, ?)',
                  (session['user_id'], receiver_id, item_id, content))
     conn.commit()
     conn.close()
-    return jsonify({'code': 200, 'msg': '消息已发送'})
+    return jsonify({'code': 200, 'msg': 'Message sent successfully'})
 
 @app.route('/api/messages', methods=['GET'])
 @login_required
 def get_messages():
-    """获取当前用户的私信列表（按其他用户分组，显示每个会话最后一条消息）"""
+    """Get the current user's private message list (grouped by other user, showing the last message in each conversation)"""
     conn = models.get_db()
     user_id = session['user_id']
-    # 查询与每个其他用户的最后一条消息
+    # Query the last message from each other user
     rows = conn.execute('''
         SELECT m1.*, u.nickname AS other_nickname
         FROM messages m1
@@ -453,7 +453,7 @@ def get_messages():
 @app.route('/api/messages/<int:other_user_id>', methods=['GET'])
 @login_required
 def get_conversation(other_user_id):
-    """获取与某人的聊天记录"""
+    """Get chat history with a specific user"""
     conn = models.get_db()
     user_id = session['user_id']
     rows = conn.execute('''
@@ -461,65 +461,65 @@ def get_conversation(other_user_id):
         WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
         ORDER BY created_at ASC
     ''', (user_id, other_user_id, other_user_id, user_id)).fetchall()
-    # 将接收的消息标记为已读
+    # Mark received messages as read
     conn.execute('UPDATE messages SET is_read=1 WHERE sender_id=? AND receiver_id=? AND is_read=0',
                  (other_user_id, user_id))
     conn.commit()
     conn.close()
     return jsonify({'code': 200, 'data': [dict(r) for r in rows]})
 
-# ------------------ 交易状态 API ------------------
+# ------------------ Transaction status API ------------------
 @app.route('/api/items/<int:item_id>/status', methods=['POST'])
 @login_required
 def change_item_status(item_id):
-    """更新商品状态，action: reserve, sell, cancel_reserve, off_shelf, relist"""
+    """Update item status, action: reserve, sell, cancel_reserve, off_shelf, relist"""
     data = request.get_json()
     action = data.get('action')
     if not action:
-        return jsonify({'code': 400, 'msg': '缺少 action'}), 400
+        return jsonify({'code': 400, 'msg': 'Missing action'}), 400
 
-    # 状态迁移规则
+    # Status transition rules
     transitions = {
-        'reserve': {'from': 'ON_SALE', 'to': 'RESERVED', 'role': 'buyer'},   # 买家预订
-        'sell': {'from': 'RESERVED', 'to': 'SOLD', 'role': 'seller'},       # 卖家确认售出
-        'cancel_reserve': {'from': 'RESERVED', 'to': 'ON_SALE', 'role': 'seller'}, # 卖家取消预订
+        'reserve': {'from': 'ON_SALE', 'to': 'RESERVED', 'role': 'buyer'},   # Buyer reserves item
+        'sell': {'from': 'RESERVED', 'to': 'SOLD', 'role': 'seller'},       # Seller confirms the sale
+        'cancel_reserve': {'from': 'RESERVED', 'to': 'ON_SALE', 'role': 'seller'}, # Seller cancels the reservation
         'off_shelf': {'from': 'ON_SALE', 'to': 'OFF_SHELF', 'role': 'seller'},
         'relist': {'from': 'OFF_SHELF', 'to': 'ON_SALE', 'role': 'seller'}
     }
     if action not in transitions:
-        return jsonify({'code': 400, 'msg': '无效操作'}), 400
+        return jsonify({'code': 400, 'msg': 'Invalid action'}), 400
 
     rule = transitions[action]
     conn = models.get_db()
     item = conn.execute('SELECT * FROM items WHERE id = ?', (item_id,)).fetchone()
     if not item:
         conn.close()
-        return jsonify({'code': 404, 'msg': '商品不存在'}), 404
+        return jsonify({'code': 404, 'msg': 'Item does not exist'}), 404
 
-    # 权限检查
+    # Permission checks
     if rule['role'] == 'seller' and item['seller_id'] != session['user_id']:
         conn.close()
-        return jsonify({'code': 403, 'msg': '只有卖家可以执行此操作'}), 403
+        return jsonify({'code': 403, 'msg': 'Only the seller can perform this action'}), 403
     if rule['role'] == 'buyer' and item['seller_id'] == session['user_id']:
         conn.close()
-        return jsonify({'code': 403, 'msg': '不能预订自己的商品'}), 403
+        return jsonify({'code': 403, 'msg': 'You cannot reserve your own item'}), 403
 
-    # 状态前置条件检查
+    # Status precondition checks
     if item['status'] != rule['from']:
         conn.close()
-        return jsonify({'code': 400, 'msg': f'当前状态为 {item["status"]}，不能执行此操作'}), 400
+        return jsonify({'code': 400, 'msg': f'Current status is {item["status"]}, and this action cannot be performed'}), 400
 
     conn.execute('UPDATE items SET status=?, updated_at=? WHERE id=?',
                  (rule['to'], datetime.now(), item_id))
     conn.commit()
     conn.close()
-    return jsonify({'code': 200, 'msg': '状态更新成功'})
+    return jsonify({'code': 200, 'msg': 'Status updated successfully'})
 
-# ------------------ 个人中心数据 ------------------
+# ------------------ Personal center data ------------------
 @app.route('/api/user/items', methods=['GET'])
 @login_required
 def get_my_items():
-    """我发布的商品（所有状态）"""
+    """My listed items (all statuses)"""
     conn = models.get_db()
     rows = conn.execute('''
         SELECT i.*, (SELECT file_path FROM images WHERE item_id = i.id LIMIT 1) AS cover_image
@@ -531,7 +531,7 @@ def get_my_items():
 @app.route('/api/user/sold', methods=['GET'])
 @login_required
 def get_sold_items():
-    """我卖出的商品（status = SOLD）"""
+    """My sold items (status = SOLD)"""
     conn = models.get_db()
     rows = conn.execute('''
         SELECT i.*, (SELECT file_path FROM images WHERE item_id = i.id LIMIT 1) AS cover_image
@@ -540,7 +540,7 @@ def get_sold_items():
     conn.close()
     return jsonify({'code': 200, 'data': [dict(r) for r in rows]})
 
-# ------------------ 启动 ------------------
+# ------------------ Startup ------------------
 if __name__ == '__main__':
     models.init_db()
     app.run(debug=True, port=5000)

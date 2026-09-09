@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,7 +27,7 @@
 
     <!-- Main content area -->
     <main class="container">
-        <!-- home view -->
+        <!-- Home view -->
         <section id="home-view">
             <div class="filter-bar">
                 <select id="category-filter">
@@ -60,12 +60,12 @@
 
         <!-- Publish view -->
         <section id="publish-view" class="hidden">
-            <h2>publish item</h2>
+            <h2>Publish Item</h2>
             <form id="publish-form">
-                <label>title：<input type="text" id="item-title" required></label><br>
-                <label>description：<textarea id="item-desc" rows="3"></textarea></label><br>
-                <label>price：<input type="number" id="item-price" step="0.01" required></label><br>
-                <label>category：
+                <label>Title: <input type="text" id="item-title" required></label><br>
+                <label>Description: <textarea id="item-desc" rows="3"></textarea></label><br>
+                <label>Price: <input type="number" id="item-price" step="0.01" required></label><br>
+                <label>Category:
                     <select id="item-category">
                         <option value="textbook">Textbook</option>
                         <option value="digital">Digital</option>
@@ -74,17 +74,17 @@
                         <option value="other">Other</option>
                     </select>
                 </label><br>
-                <label>condition：
+                <label>Condition:
                     <select id="item-condition">
-                        <option value="new">new</option>
-                        <option value="like_new">like new</option>
-                        <option value="good">good</option>
-                        <option value="fair">fair</option>
+                        <option value="new">New</option>
+                        <option value="like_new">Like New</option>
+                        <option value="good">Good</option>
+                        <option value="fair">Fair</option>
                     </select>
                 </label><br>
-                <label>images(at most 3)：<input type="file" id="item-images" accept="image/*" multiple></label><br>
+                <label>Images (at most 3): <input type="file" id="item-images" accept="image/*" multiple></label><br>
                 <div id="image-preview"></div>
-                <button type="submit">publish</button>
+                <button type="submit">Publish</button>
             </form>
             <div id="upload-status"></div>
         </section>
@@ -116,10 +116,10 @@
         <section id="profile-view" class="hidden">
             <h2>Profile</h2>
             <div class="profile-tabs">
-                <button id="tab-my-items" class="active">my items</button>
-                <button id="tab-my-favorites">my favorites</button>
-                <button id="tab-my-sold">my sold</button>
-                <button id="tab-messages">messages</button>
+                <button id="tab-my-items" class="active">My Items</button>
+                <button id="tab-my-favorites">My Favorites</button>
+                <button id="tab-my-sold">My Sold</button>
+                <button id="tab-messages">Messages</button>
             </div>
             <div id="profile-content"></div>
         </section>
@@ -129,11 +129,11 @@
     <div id="message-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close" id="close-message-modal">&times;</span>
-            <h3>contact with <span id="message-receiver"></span> </h3>
+            <h3>Contact with <span id="message-receiver"></span></h3>
             <div id="message-list" class="message-list"></div>
             <div class="message-input">
-                <input type="text" id="message-text" placeholder="key in your message...">
-                <button id="send-message-btn">send</button>
+                <input type="text" id="message-text" placeholder="Type your message...">
+                <button id="send-message-btn">Send</button>
             </div>
         </div>
     </div>
