@@ -3,142 +3,439 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Secondhand Market</title>
+    <meta name="description" content="Campus Market — buy, sell and swap second-hand goods with students on your own campus.">
+    <meta name="theme-color" content="#4f46e5">
+    <title>Campus Market · Second-hand trading for students</title>
+    <link rel="icon" type="image/svg+xml" href="/static/images/favicon.svg">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <!-- Top navigation -->
-    <header>
-        <div class="container nav-bar">
-            <h1 class="logo">🎓 Campus Secondhand</h1>
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="Search items...">
-                <button id="search-btn">Search</button>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+        <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5 21 21"></path>
+        </symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"></path>
+        </symbol>
+        <symbol id="i-bag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5.8 8h12.4l-1 11.6a1.6 1.6 0 0 1-1.6 1.4H8.4a1.6 1.6 0 0 1-1.6-1.4z"></path>
+            <path d="M9.4 8V6.4a2.6 2.6 0 0 1 5.2 0V8"></path>
+        </symbol>
+        <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8.2" r="3.6"></circle><path d="M4.6 20a7.4 7.4 0 0 1 14.8 0"></path>
+        </symbol>
+        <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20s-7-4.4-7-9.2A4.3 4.3 0 0 1 12 8a4.3 4.3 0 0 1 7 2.8C19 15.6 12 20 12 20z"></path>
+        </symbol>
+        <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 11.5c0 3.6-3.1 6.5-7 6.5-.9 0-1.8-.2-2.6-.5L6.5 20l1-3.2A6.4 6.4 0 0 1 6 11.5C6 7.9 9.1 5 13 5s7 2.9 7 6.5z"></path>
+        </symbol>
+        <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.8 12 19.6 5.2l-6.4 14.4-2-5.6z"></path><path d="M11.2 14 19.6 5.2"></path>
+        </symbol>
+        <symbol id="i-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 6 8.5 12l6 6"></path>
+        </symbol>
+        <symbol id="i-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9.5l6 6 6-6"></path>
+        </symbol>
+        <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5"></path>
+        </symbol>
+        <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12.5l4.8 4.8L19 7.5"></path>
+        </symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 7.2h14M9.4 7.2V5.6h5.2v1.6M7.2 7.2l.9 12.3h7.8l.9-12.3M10.6 10.6v5.6M13.4 10.6v5.6"></path>
+        </symbol>
+        <symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3.6" y="4.6" width="16.8" height="14.8" rx="2.6"></rect>
+            <circle cx="8.8" cy="9.6" r="1.6"></circle>
+            <path d="M4.2 17.2 9 12.8l3.4 3 2.9-2.6 4.6 4"></path>
+        </symbol>
+        <symbol id="i-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 11.2V5.6A1.6 1.6 0 0 1 5.6 4h5.6a2 2 0 0 1 1.4.6l6.8 6.8a2 2 0 0 1 0 2.8l-5.6 5.6a2 2 0 0 1-2.8 0L4.6 12.6a2 2 0 0 1-.6-1.4z"></path>
+            <circle cx="8.4" cy="8.4" r="1.3"></circle>
+        </symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="8"></circle><path d="M12 7.6V12l3 1.8"></path>
+        </symbol>
+        <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 21s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10z"></path><circle cx="12" cy="11" r="2.2"></circle>
+        </symbol>
+        <symbol id="i-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 13.6 6.6 5.8h10.8L20 13.6V18a1.8 1.8 0 0 1-1.8 1.8H5.8A1.8 1.8 0 0 1 4 18z"></path>
+            <path d="M4 13.6h4.2l1 2.2h5.6l1-2.2H20"></path>
+        </symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3.8 19 6.4v5.2c0 4.3-3 7.4-7 8.6-4-1.2-7-4.3-7-8.6V6.4z"></path><path d="M9.2 12.2 11.4 14.4l3.6-4"></path>
+        </symbol>
+        <symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.8 5.5h3.4A1.8 1.8 0 0 1 20 7.3v9.4a1.8 1.8 0 0 1-1.8 1.8h-3.4"></path>
+            <path d="M12.6 12H4M7.6 8.8 4.4 12l3.2 3.2"></path>
+        </symbol>
+        <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13.4 3.2 6.2 13.4h4.6L9.8 20.8l7.6-10.4h-4.8z"></path>
+        </symbol>
+        <symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 16.4V5.4M8.2 9 12 5.2 15.8 9"></path>
+            <path d="M5.4 15.4v2.2a2 2 0 0 0 2 2h9.2a2 2 0 0 0 2-2v-2.2"></path>
+        </symbol>
+        <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="8.2"></circle><path d="M12 7.8v5M12 15.9v.6"></path>
+        </symbol>
+        <symbol id="i-store" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.4 9.6 6 4.8h12l1.6 4.8"></path>
+            <path d="M5.4 9.6v9.2a1.4 1.4 0 0 0 1.4 1.4h10.4a1.4 1.4 0 0 0 1.4-1.4V9.6"></path>
+            <path d="M4.4 9.6a2.4 2.4 0 0 0 4.3 1.5 2.4 2.4 0 0 0 4.2 0 2.4 2.4 0 0 0 4.2 0 2.4 2.4 0 0 0 2.5-1.5"></path>
+        </symbol>
+    </defs>
+</svg>
+
+<header class="app-header">
+    <div class="shell header-inner">
+        <button type="button" class="brand" id="home-btn" aria-label="Back to the home page">
+            <span class="brand-mark"><svg class="icon"><use href="#i-bag"></use></svg></span>
+            <span class="brand-text">
+                <strong>Campus Market</strong>
+                <small>buy · sell · swap</small>
+            </span>
+        </button>
+
+        <form class="search" id="search-form" role="search">
+            <svg class="icon search-icon"><use href="#i-search"></use></svg>
+            <input type="search" id="search-input" placeholder="Search textbooks, electronics, daily goods…" aria-label="Search listings">
+            <button id="search-btn" type="submit">Search</button>
+        </form>
+
+        <nav class="header-actions">
+            <button class="btn btn-primary" id="publish-btn">
+                <svg class="icon"><use href="#i-plus"></use></svg><span>Sell an item</span>
+            </button>
+
+            <div class="user-menu hidden" id="user-menu">
+                <button class="avatar-btn" id="user-menu-btn" aria-haspopup="true" aria-expanded="false">
+                    <span class="avatar" id="nav-avatar">U</span>
+                    <span class="avatar-name" id="nav-username">Student</span>
+                    <svg class="icon icon-sm"><use href="#i-chevron-down"></use></svg>
+                </button>
+                <div class="menu-panel hidden" id="user-menu-panel" role="menu">
+                    <div class="menu-head">
+                        <strong id="menu-nickname">Student</strong>
+                        <span id="menu-username">@user</span>
+                    </div>
+                    <div class="menu-sep"></div>
+                    <button class="menu-item" id="profile-btn" role="menuitem">
+                        <svg class="icon icon-sm"><use href="#i-user"></use></svg>My profile
+                    </button>
+                    <button class="menu-item" id="menu-favorites-btn" role="menuitem">
+                        <svg class="icon icon-sm"><use href="#i-heart"></use></svg>My favorites
+                    </button>
+                    <button class="menu-item" id="menu-messages-btn" role="menuitem">
+                        <svg class="icon icon-sm"><use href="#i-chat"></use></svg>My messages
+                    </button>
+                    <div class="menu-sep"></div>
+                    <button class="menu-item is-danger" id="logout-btn" role="menuitem">
+                        <svg class="icon icon-sm"><use href="#i-logout"></use></svg>Log out
+                    </button>
+                </div>
             </div>
-            <div class="nav-actions">
-                <button id="home-btn">Home</button>
-                <button id="publish-btn" class="hidden-when-logout">Publish Item</button>
-                <button id="profile-btn" class="hidden-when-logout">Profile</button>
-                <button id="login-btn">Login/Register</button>
-                <button id="logout-btn" class="hidden-when-logout">Logout</button>
+
+            <button class="btn btn-ghost" id="login-btn">Log in / Sign up</button>
+        </nav>
+    </div>
+</header>
+
+<main class="shell app-main">
+
+    <section id="home-view" class="view">
+        <div class="hero">
+            <div class="hero-copy">
+                <span class="eyebrow"><svg class="icon icon-sm"><use href="#i-bolt"></use></svg>On-campus pickup · meet in person</span>
+                <h1>Pass your spare stuff on to someone who needs it</h1>
+                <p>Textbooks, electronics and everyday items — post in a minute and hand over on campus.</p>
+            </div>
+            <div class="hero-stats">
+                <div class="stat"><strong id="stat-on-sale">–</strong><span>Listings on sale</span></div>
+                <div class="stat"><strong>5</strong><span>Categories</span></div>
+                <div class="stat"><strong>0%</strong><span>Commission</span></div>
             </div>
         </div>
-    </header>
 
-    <!-- Main content area -->
-    <main class="container">
-        <!-- Home view -->
-        <section id="home-view">
-            <div class="filter-bar">
-                <select id="category-filter">
-                    <option value="">All Categories</option>
-                    <option value="textbook">Textbook</option>
-                    <option value="digital">Digital</option>
-                    <option value="daily_use">Daily Use</option>
-                    <option value="sports_equipment">Sports Equipment</option>
-                    <option value="other">Other</option>
+        <div class="chips chips-filter" id="category-chips">
+            <button class="chip is-active" data-category="">All categories</button>
+            <button class="chip" data-category="textbook">Textbooks</button>
+            <button class="chip" data-category="digital">Electronics</button>
+            <button class="chip" data-category="daily_use">Daily use</button>
+            <button class="chip" data-category="sports_equipment">Sports gear</button>
+            <button class="chip" data-category="other">Other</button>
+        </div>
+
+        <div class="toolbar">
+            <h2 class="section-title">Latest listings <span class="count" id="result-count"></span></h2>
+            <label class="select-wrap">
+                <select id="sort-select" aria-label="Sort by">
+                    <option value="latest">Newest first</option>
+                    <option value="price_asc">Price: low to high</option>
+                    <option value="price_desc">Price: high to low</option>
                 </select>
-                <select id="sort-select">
-                    <option value="latest">Latest</option>
-                    <option value="price_asc">Price: Low to High</option>
-                    <option value="price_desc">Price: High to Low</option>
-                </select>
-            </div>
-            <div id="item-grid" class="item-grid"></div>
-            <div class="pagination">
-                <button id="prev-page">Previous</button>
-                <span id="page-info">Page 1</span>
-                <button id="next-page">Next</button>
-            </div>
-        </section>
+                <svg class="icon icon-sm"><use href="#i-chevron-down"></use></svg>
+            </label>
+        </div>
 
-        <!-- Detail view -->
-        <section id="detail-view" class="hidden">
-            <button id="back-btn">← Back</button>
-            <div id="detail-content"></div>
-        </section>
+        <div id="item-grid" class="item-grid"></div>
 
-        <!-- Publish view -->
-        <section id="publish-view" class="hidden">
-            <h2>Publish Item</h2>
-            <form id="publish-form">
-                <label>Title: <input type="text" id="item-title" required></label><br>
-                <label>Description: <textarea id="item-desc" rows="3"></textarea></label><br>
-                <label>Price: <input type="number" id="item-price" step="0.01" required></label><br>
-                <label>Category:
-                    <select id="item-category">
+        <nav class="pagination" id="pagination">
+            <button class="page-btn" id="prev-page">Previous</button>
+            <div class="page-nums" id="page-nums"></div>
+            <span class="page-info" id="page-info"></span>
+            <button class="page-btn" id="next-page">Next</button>
+        </nav>
+    </section>
+
+    <section id="detail-view" class="view hidden">
+        <button class="link-back" id="back-btn">
+            <svg class="icon icon-sm"><use href="#i-chevron-left"></use></svg>Back to listings
+        </button>
+        <div id="detail-content"></div>
+    </section>
+
+    <section id="publish-view" class="view hidden">
+        <div class="page-head">
+            <h1>Sell an item</h1>
+            <p>The more complete the listing, the faster it sells. Fields marked <em>*</em> are required.</p>
+        </div>
+
+        <div class="publish-layout">
+            <form id="publish-form" class="card form-card">
+                <label class="field">
+                    <span class="field-label">Title <em>*</em></span>
+                    <input type="text" id="item-title" maxlength="60" required placeholder="e.g. Advanced Mathematics (7th ed.) Vol. 1, with workbook">
+                    <span class="field-hint">One line about what it is and its condition, up to 60 characters</span>
+                </label>
+
+                <label class="field">
+                    <span class="field-label">Description</span>
+                    <textarea id="item-desc" rows="5" maxlength="500" placeholder="Add when you bought it, signs of wear, whether all parts are included, if the price is negotiable, where you can meet…"></textarea>
+                    <span class="field-hint"><span id="desc-counter">0</span> / 500</span>
+                </label>
+
+                <label class="field">
+                    <span class="field-label">Price <em>*</em></span>
+                    <span class="input-affix">
+                        <span class="affix">¥</span>
+                        <input type="number" id="item-price" step="0.01" min="0" required placeholder="0.00">
+                    </span>
+                </label>
+
+                <div class="field">
+                    <span class="field-label">Category</span>
+                    <div class="chips chips-sm" id="item-category-chips">
+                        <button type="button" class="chip is-active" data-value="textbook">Textbook</button>
+                        <button type="button" class="chip" data-value="digital">Electronics</button>
+                        <button type="button" class="chip" data-value="daily_use">Daily use</button>
+                        <button type="button" class="chip" data-value="sports_equipment">Sports gear</button>
+                        <button type="button" class="chip" data-value="other">Other</button>
+                    </div>
+                    <select id="item-category" class="hidden" aria-hidden="true" tabindex="-1">
                         <option value="textbook">Textbook</option>
-                        <option value="digital">Digital</option>
+                        <option value="digital">Electronics</option>
                         <option value="daily_use">Daily Use</option>
                         <option value="sports_equipment">Sports Equipment</option>
                         <option value="other">Other</option>
                     </select>
-                </label><br>
-                <label>Condition:
-                    <select id="item-condition">
+                </div>
+
+                <div class="field">
+                    <span class="field-label">Condition</span>
+                    <div class="chips chips-sm" id="item-condition-chips">
+                        <button type="button" class="chip" data-value="new">Brand new</button>
+                        <button type="button" class="chip is-active" data-value="like_new">Like new</button>
+                        <button type="button" class="chip" data-value="good">Good</button>
+                        <button type="button" class="chip" data-value="fair">Fair</button>
+                    </div>
+                    <select id="item-condition" class="hidden" aria-hidden="true" tabindex="-1">
                         <option value="new">New</option>
                         <option value="like_new">Like New</option>
                         <option value="good">Good</option>
                         <option value="fair">Fair</option>
                     </select>
-                </label><br>
-                <label>Images (at most 3): <input type="file" id="item-images" accept="image/*" multiple></label><br>
-                <div id="image-preview"></div>
-                <button type="submit">Publish</button>
-            </form>
-            <div id="upload-status"></div>
-        </section>
+                </div>
 
-        <!-- Authentication view -->
-        <section id="auth-view" class="hidden">
-            <div class="auth-tabs">
-                <button id="tab-login" class="active">Login</button>
-                <button id="tab-register">Register</button>
-            </div>
-            <form id="login-form">
-                <h3>Login</h3>
-                <input type="text" id="login-username" placeholder="Username" required>
-                <input type="password" id="login-password" placeholder="Password" required>
-                <button type="submit">Login</button>
-            </form>
-            <form id="register-form" class="hidden">
-                <h3>Register</h3>
-                <input type="text" id="reg-username" placeholder="Username" required>
-                <input type="password" id="reg-password" placeholder="Password" required>
-                <input type="text" id="reg-nickname" placeholder="Nickname (optional)">
-                <input type="email" id="reg-email" placeholder="Email (optional)">
-                <input type="text" id="reg-student-id" placeholder="Student ID (optional)">
-                <button type="submit">Register</button>
-            </form>
-        </section>
+                <div class="field">
+                    <span class="field-label">Photos <em>*</em></span>
+                    <label class="dropzone" id="dropzone">
+                        <input type="file" id="item-images" accept="image/png,image/jpeg,image/gif,image/webp" multiple>
+                        <svg class="icon icon-lg"><use href="#i-upload"></use></svg>
+                        <strong>Click to choose photos, or drag them here</strong>
+                        <span>Up to 3 photos · JPG / PNG / WEBP · max 5 MB each</span>
+                    </label>
+                    <div id="image-preview" class="preview-grid"></div>
+                </div>
 
-        <!-- Profile view -->
-        <section id="profile-view" class="hidden">
-            <h2>Profile</h2>
-            <div class="profile-tabs">
-                <button id="tab-my-items" class="active">My Items</button>
-                <button id="tab-my-favorites">My Favorites</button>
-                <button id="tab-my-sold">My Sold</button>
-                <button id="tab-messages">Messages</button>
-            </div>
-            <div id="profile-content"></div>
-        </section>
-    </main>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" id="publish-reset">Reset</button>
+                    <button type="submit" class="btn btn-primary btn-lg" id="publish-submit">Publish listing</button>
+                </div>
+                <div id="upload-status" class="upload-status" role="status"></div>
+            </form>
 
-    <!-- Message modal (simplified, can be optimized later) -->
-    <div id="message-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close" id="close-message-modal">&times;</span>
-            <h3>Contact with <span id="message-receiver"></span></h3>
-            <div id="message-list" class="message-list"></div>
-            <div class="message-input">
-                <input type="text" id="message-text" placeholder="Type your message...">
-                <button id="send-message-btn">Send</button>
+            <aside class="preview-col">
+                <div class="preview-label">Live preview</div>
+                <div class="item-card is-preview" id="publish-preview"></div>
+                <div class="tips-card">
+                    <h3><svg class="icon icon-sm"><use href="#i-shield"></use></svg>Listing tips</h3>
+                    <ul>
+                        <li>Real photos get more clicks — avoid stock images.</li>
+                        <li>Say where and when you can meet, e.g. "outside Building 3, weekday lunchtime".</li>
+                        <li>Check similar listings for pricing; "price negotiable" helps it sell.</li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section id="auth-view" class="view hidden">
+        <div class="auth-card">
+            <aside class="auth-aside">
+                <span class="brand-mark brand-mark-lg"><svg class="icon"><use href="#i-bag"></use></svg></span>
+                <h2>Second-hand trading,<br>straight from your campus</h2>
+                <ul class="feature-list">
+                    <li><svg class="icon icon-sm"><use href="#i-check"></use></svg>Post an item and classmates contact you directly</li>
+                    <li><svg class="icon icon-sm"><use href="#i-check"></use></svg>Save the things you like and come back any time</li>
+                    <li><svg class="icon icon-sm"><use href="#i-check"></use></svg>See reserved and sold status at a glance</li>
+                </ul>
+                <p class="aside-note">Same campus, face-to-face handover.</p>
+            </aside>
+
+            <div class="auth-body">
+                <div class="tabs tabs-pill" role="tablist">
+                    <button id="tab-login" class="tab is-active" role="tab" aria-selected="true">Log in</button>
+                    <button id="tab-register" class="tab" role="tab" aria-selected="false">Sign up</button>
+                </div>
+
+                <form id="login-form" class="auth-form">
+                    <label class="field">
+                        <span class="field-label">Username</span>
+                        <input type="text" id="login-username" required autocomplete="username" placeholder="Enter your username">
+                    </label>
+                    <label class="field">
+                        <span class="field-label">Password</span>
+                        <input type="password" id="login-password" required autocomplete="current-password" placeholder="Enter your password">
+                    </label>
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">Log in</button>
+                    <p class="auth-switch">No account yet? <a href="javascript:void(0)" data-switch="register">Sign up</a></p>
+                </form>
+
+                <form id="register-form" class="auth-form hidden">
+                    <label class="field">
+                        <span class="field-label">Username <em>*</em></span>
+                        <input type="text" id="reg-username" required autocomplete="username" placeholder="Used to log in — your student ID works well">
+                    </label>
+                    <label class="field">
+                        <span class="field-label">Password <em>*</em></span>
+                        <input type="password" id="reg-password" required autocomplete="new-password" placeholder="At least 6 characters">
+                    </label>
+                    <div class="field-row">
+                        <label class="field">
+                            <span class="field-label">Nickname</span>
+                            <input type="text" id="reg-nickname" placeholder="The name other students will see">
+                        </label>
+                        <label class="field">
+                            <span class="field-label">Student ID</span>
+                            <input type="text" id="reg-student-id" placeholder="Optional">
+                        </label>
+                    </div>
+                    <label class="field">
+                        <span class="field-label">Email</span>
+                        <input type="email" id="reg-email" placeholder="Optional, helps buyers reach you">
+                    </label>
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">Create account</button>
+                    <p class="auth-switch">Already have an account? <a href="javascript:void(0)" data-switch="login">Log in</a></p>
+                </form>
             </div>
         </div>
-    </div>
+    </section>
 
-    <script src="/static/js/api.js"></script>
-    <script src="/static/js/main.js"></script>
+    <section id="profile-view" class="view hidden">
+        <div class="card profile-head">
+            <span class="avatar avatar-lg" id="profile-avatar">U</span>
+            <div class="profile-meta">
+                <h1 id="profile-nickname">Student</h1>
+                <p>
+                    <span id="profile-username">@user</span>
+                    <span class="dot">·</span>Student ID <span id="profile-student-id">not set</span>
+                </p>
+            </div>
+            <div class="profile-stats">
+                <div class="stat"><strong id="stat-my-items">–</strong><span>Posted</span></div>
+                <div class="stat"><strong id="stat-my-favorites">–</strong><span>Favorites</span></div>
+                <div class="stat"><strong id="stat-my-sold">–</strong><span>Sold</span></div>
+            </div>
+        </div>
+
+        <div class="tabs tabs-underline" role="tablist">
+            <button id="tab-my-items" class="tab is-active" role="tab">My listings</button>
+            <button id="tab-my-favorites" class="tab" role="tab">My favorites</button>
+            <button id="tab-my-sold" class="tab" role="tab">Sold</button>
+            <button id="tab-messages" class="tab" role="tab">Messages</button>
+        </div>
+
+        <div id="profile-content" class="profile-content"></div>
+    </section>
+
+</main>
+
+<footer class="app-footer">
+    <div class="shell footer-inner">
+        <span>Campus Market</span>
+        <span>JC2001 Introduction to Software Engineering · course PoC</span>
+    </div>
+</footer>
+
+<div id="message-modal" class="modal hidden">
+    <div class="chat-panel" role="dialog" aria-modal="true" aria-labelledby="chat-title">
+        <header class="chat-head">
+            <span class="avatar" id="chat-avatar">U</span>
+            <div class="chat-title">
+                <strong id="message-receiver">Student</strong>
+                <small id="chat-title">Direct message · polling</small>
+            </div>
+            <button class="icon-btn" id="close-message-modal" aria-label="Close">
+                <svg class="icon"><use href="#i-close"></use></svg>
+            </button>
+        </header>
+        <div id="message-list" class="chat-body"></div>
+        <form class="chat-foot" id="message-form">
+            <input type="text" id="message-text" placeholder="Type a message, press Enter to send" autocomplete="off">
+            <button id="send-message-btn" class="btn btn-primary" type="submit">
+                <svg class="icon icon-sm"><use href="#i-send"></use></svg>Send
+            </button>
+        </form>
+    </div>
+</div>
+
+<div id="confirm-modal" class="modal hidden">
+    <div class="confirm-panel" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+        <span class="confirm-icon"><svg class="icon"><use href="#i-alert"></use></svg></span>
+        <h3 id="confirm-title">Confirm</h3>
+        <p id="confirm-desc"></p>
+        <div class="confirm-actions">
+            <button class="btn btn-ghost" id="confirm-cancel">Cancel</button>
+            <button class="btn btn-danger" id="confirm-ok">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast-root" class="toast-root" role="status" aria-live="polite"></div>
+
+<noscript>
+    <div class="shell noscript-note">JavaScript is required to use this page.</div>
+</noscript>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/main.js"></script>
 </body>
 </html>
