@@ -1,5 +1,0 @@
-    100 rows -> {'Catalogue page 1': 2.454, 'Keyword search (LIKE on two columns)': 2.473, 'Category filter + sort by price': 2.433}
-    250 rows -> {'Catalogue page 1': 2.462, 'Keyword search (LIKE on two columns)': 2.491, 'Category filter + sort by price': 2.428}
-    500 rows -> {'Catalogue page 1': 2.558, 'Keyword search (LIKE on two columns)': 2.581, 'Category filter + sort by price': 2.532}
-   1000 rows -> {'Catalogue page 1': 2.549, 'Keyword search (LIKE on two columns)': 2.644, 'Category filter + sort by price': 2.518}
-   2000 rows -> {'Catalogue page 1': 2.746, 'Keyword search (LIKE on two columns)': 2.86, 'Category filter + sort by price': 2.627}
