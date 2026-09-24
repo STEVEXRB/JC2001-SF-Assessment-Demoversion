@@ -75,6 +75,14 @@ body {
 
 ul, ol { list-style: none; }
 img { display: block; max-width: 100%; }
+/* A cover whose file is missing is replaced by .no-img at runtime (see main.js),
+   so the failed <img> is hidden rather than left as a broken glyph. */
+img.is-broken { display: none; }
+.no-img {
+    display: grid; place-items: center;
+    width: 100%; height: 100%;
+    color: var(--ink-400);
+}
 a { color: var(--brand-600); text-decoration: none; }
 a:hover { text-decoration: underline; }
 button { font: inherit; color: inherit; cursor: pointer; }

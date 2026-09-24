@@ -3,7 +3,7 @@
 `data.db` and `uploads/` are git-ignored, so this script is the reproducible way
 to get from a clean checkout to a dataset that has something to show on every
 screen: four accounts, eleven listings spread over all five categories and all
-four statuses, nine cover illustrations, three favourites, five comments and
+four statuses, ten cover illustrations, three favourites, five comments and
 eight private messages.
 
 Usage
@@ -11,8 +11,10 @@ Usage
     python seed.py            # seed only when the database is empty
     python seed.py --force    # wipe the six tables and seed again
 
-The script never touches the uploaded files on disk; it only writes the
-`uploads/demo-*.svg` filenames that ship with the repository.
+Beside the rows themselves the script also materialises the ten cover
+illustrations listed in `demo_covers.py` into `uploads/`. Those files cannot ship
+with the repository — `uploads/` is git-ignored — so without this step every
+listing cover would 404 on a fresh clone.
 """
 
 import argparse
@@ -22,14 +24,19 @@ import sys
 
 from werkzeug.security import generate_password_hash
 
+import demo_covers
 import models
+
+# Where the cover illustrations are materialised. Mirrors app.UPLOAD_FOLDER.
+UPLOAD_DIR = 'uploads'
 
 # All demo accounts share this password, so the marker accounts are easy to
 # hand to a marker without a lookup table.
 DEMO_PASSWORD = '123456'
 
-# Cover illustrations that live in uploads/. `None` means "no photo", which
-# exercises the empty-gallery placeholder on the detail page.
+# Cover illustrations that belong in uploads/. `None` means "no photo", which
+# exercises the empty-gallery placeholder on the detail page. The artwork itself
+# lives in demo_covers.py, which seed() writes out via write_covers().
 COVER = {
     'book': 'demo-book.svg',
     'laptop': 'demo-laptop.svg',
@@ -40,6 +47,7 @@ COVER = {
     'bicycle': 'demo-bicycle.svg',
     'racket': 'demo-racket.svg',
     'calculator': 'demo-calculator.svg',
+    'notes': 'demo-notes.svg',
 }
 
 # --------------------------------------------------------------------------
@@ -203,12 +211,12 @@ ITEMS = [
         'Complete set of handwritten notes for the JC2001 lectures, plus the three '
         'most recent past papers with my own answers marked up.\n'
         'Great for the final revision week. Happy to hand over near the teaching '
-        'building, no photos yet because the stack is still being scanned.',
+        'building.',
         25,
         'textbook',
         'good',
         'ON_SALE',
-        None,
+        COVER['notes'],
         '2026-09-08 16:20:00',
         None,
     ),
@@ -271,8 +279,9 @@ FAVORITES = [
 TABLES = ['messages', 'comments', 'favorites', 'images', 'items', 'users']
 
 
-def seed(force=False, db_file=None):
-    """Populate the database. Returns a dict of row counts, or None if skipped."""
+def seed(force=False, db_file=None, upload_dir=UPLOAD_DIR):
+    """Populate the database and write the cover files. Returns a dict of row
+    counts, or None if the seed was skipped because data was already present."""
     if db_file:
         models.DB_FILE = db_file
 
@@ -286,7 +295,13 @@ def seed(force=False, db_file=None):
         conn.close()
         print(f'Database already holds data ({existing} rows in users + items).')
         print('Re-run with --force to wipe the six tables and seed again.')
+        print('Missing cover illustrations are still repaired by re-running with --force.')
         return None
+
+    # Materialise the cover illustrations the `images` rows point at. Idempotent:
+    # a file that is already on disk is kept, so a real photo that replaced a
+    # placeholder survives a re-seed.
+    covers_written = demo_covers.write_covers(upload_dir)
 
     with conn:
         for table in TABLES:
@@ -345,6 +360,7 @@ def seed(force=False, db_file=None):
 
     counts = {t: conn.execute(f'SELECT COUNT(*) FROM {t}').fetchone()[0] for t in reversed(TABLES)}
     conn.close()
+    counts['covers_written'] = covers_written
     return counts
 
 
@@ -361,23 +377,30 @@ def main():
     parser.add_argument('--force', action='store_true',
                         help='wipe the six tables first, even if data is present')
     parser.add_argument('--db', default=None, help='alternative SQLite file to seed')
+    parser.add_argument('--upload-dir', default=UPLOAD_DIR,
+                        help='directory the cover illustrations are written into')
     args = parser.parse_args()
 
-    counts = seed(force=args.force, db_file=args.db)
+    counts = seed(force=args.force, db_file=args.db, upload_dir=args.upload_dir)
     if counts is None:
         return 0
 
-    # Fail loudly if a cover illustration referenced above is missing on disk.
+    covers_written = counts.pop('covers_written', [])
+
+    # Fail loudly if any image row still points at a file that is not on disk.
     missing = [
         row['file_path'] for row in models.get_db().execute('SELECT file_path FROM images')
-        if not os.path.exists(os.path.join('uploads', row['file_path']))
+        if not os.path.exists(os.path.join(args.upload_dir, row['file_path']))
     ]
     if missing:
-        print('WARNING: cover illustrations missing from uploads/:', ', '.join(sorted(set(missing))))
+        print('WARNING: cover illustrations missing from '
+              f'{args.upload_dir}/:', ', '.join(sorted(set(missing))))
 
     print('Seeded', models.DB_FILE)
     for table, n in counts.items():
         print(f'  {table:<10} {n:>3}')
+    print(f'  {"covers":<10} {len(covers_written):>3} written, '
+          f'{len(demo_covers.COVERS) - len(covers_written)} already present')
     print(f'\nAccounts: {", ".join(u[0] for u in USERS)}  (password: {DEMO_PASSWORD})')
     return 0
 

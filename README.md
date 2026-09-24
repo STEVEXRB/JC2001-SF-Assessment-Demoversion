@@ -126,7 +126,7 @@ without touching the row.
 | Frontend | Vanilla HTML / CSS / JavaScript — no framework, no bundler |
 | Image storage | Local filesystem (`uploads/`) |
 | Auth | Flask session cookie + Werkzeug password hashing |
-| Tests | pytest (80 cases) |
+| Tests | pytest (86 cases) |
 
 ## Project structure
 
@@ -137,6 +137,7 @@ JC2001-SF-Assessment/
 ├── requirements.txt
 ├── start.bat                  # Windows launcher
 ├── seed.py                    # Reproducible demo dataset; `python seed.py`
+├── demo_covers.py             # The ten demo cover illustrations seed.py writes out
 ├── data.db                    # SQLite database, seeded with demo data
 ├── data.db.backup-20260923    # Pre-seeding snapshot, for restoring a clean dataset
 ├── static/
@@ -224,7 +225,7 @@ Six tables, all foreign keys declared at creation time.
 ## Demo data
 
 The repository ships with a seeded `data.db` so every screen has something to show:
-**11 listings** across all five categories and all four statuses, 9 cover illustrations,
+**11 listings** across all five categories and all four statuses, 10 cover illustrations,
 3 favourites, 5 comments and 8 private messages across two conversations.
 
 | Account | Password | Display name | Listings | Notes |
@@ -242,10 +243,17 @@ The repository ships with a seeded `data.db` so every screen has something to sh
 | Sports gear | 2 | | `OFF_SHELF` | 1 |
 | Other | 1 | | | |
 
-Two of the eleven listings deliberately have no photo, so the empty-gallery
-placeholder on the detail page is visible without having to delete anything. The
-nine covers under `uploads/demo-*.svg` are generated flat illustrations, not
-photographs — upload real images through the publish form to replace them.
+One of the eleven listings (the off-shelf drafting kit) deliberately has no
+photo, so the empty-gallery placeholder on the detail page stays demonstrable —
+open it from the seller's personal centre. The ten covers under
+`uploads/demo-*.svg` are generated flat illustrations, not photographs — upload
+real images through the publish form to replace them.
+
+Because `uploads/` is git-ignored, the illustrations cannot ship with the
+repository. `seed.py` materialises them from `demo_covers.py` on the machine that
+runs the seed, so a fresh clone gets working covers instead of 404s. A file that
+is already on disk is never overwritten, so a placeholder you swapped for a real
+photo survives a re-seed.
 
 Because `data.db` and `uploads/` are git-ignored, **`seed.py` is the reproducible
 way to rebuild this dataset**:
@@ -303,13 +311,13 @@ directory for `data.db` and `uploads/`.
 ## Tests and performance
 
 ```bash
-python -m pytest tests/ -q      # 80 tests
+python -m pytest tests/ -q      # 86 tests
 python tests/benchmark.py       # latency per endpoint
 python tests/scale.py           # read paths from 100 to 2,000 rows
 ```
 
 Every test runs against a throwaway SQLite file and upload directory, so the shipped
-`data.db` is never touched. Current status: **80 passed**.
+`data.db` is never touched. Current status: **86 passed**.
 
 | Area | Prefix | Cases | Covers |
 |------|--------|-------|--------|
@@ -320,6 +328,7 @@ Every test runs against a throwaway SQLite file and upload directory, so the shi
 | Transitions | `T` | 15 | Every legal and illegal status transition, terminal states |
 | Social | `S` | 16 | Favourites, comments, messaging, read receipts |
 | Personal | `P` | 5 | Ownership scoping of the personal endpoints |
+| Assets | `test_demo_covers.py` | 6 | Demo cover artwork exists, is valid SVG and is served |
 
 `benchmark.py` measures in-process request handling with Flask's test client, on a
 database of 500 listings, 22 users, 61 conversation threads and a 40-message thread.

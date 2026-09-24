@@ -128,6 +128,53 @@ function confirmDialog(title, description, okText = 'Confirm') {
     });
 }
 
+// ------------------- Missing image fallback -------------------
+// A cover can 404: the file may have been removed from uploads/, an upload may
+// have been truncated, or a database row may point at a name that was never
+// written. Rather than leaving the browser's broken-image glyph on the card, any
+// /uploads/ image that fails to load is swapped for the same placeholder the app
+// already shows for listings without photos. `error` and `load` do not bubble,
+// so both are captured.
+function showImageFallback(img) {
+    if (img.dataset.imgFallback === 'on') return;
+    img.dataset.imgFallback = 'on';
+
+    const inGallery = !!img.closest('.gallery-main');
+    const holder = document.createElement('div');
+    holder.className = 'no-img';
+    holder.title = img.alt || '';
+    holder.innerHTML = '<svg class="icon icon-lg"><use href="#i-image"></use></svg>'
+        + (inGallery ? '<span>Photo unavailable</span>' : '');
+
+    const frame = img.closest('.thumb, .gallery-main');
+    if (frame) {
+        frame.insertBefore(holder, frame.firstChild);
+    } else {
+        // Thumbnails and the publish preview have no placeholder frame of their own.
+        img.parentNode.insertBefore(holder, img);
+    }
+    img._imgFallbackHolder = holder;
+    img.classList.add('is-broken');
+}
+
+function clearImageFallback(img) {
+    if (img.dataset.imgFallback !== 'on') return;
+    img.dataset.imgFallback = 'off';
+    img.classList.remove('is-broken');
+    if (img._imgFallbackHolder) {
+        img._imgFallbackHolder.remove();
+        img._imgFallbackHolder = null;
+    }
+}
+
+document.addEventListener('error', event => {
+    if (event.target instanceof HTMLImageElement) showImageFallback(event.target);
+}, true);
+
+document.addEventListener('load', event => {
+    if (event.target instanceof HTMLImageElement) clearImageFallback(event.target);
+}, true);
+
 // ----------------------------- Bootstrap -----------------------------
 document.addEventListener('DOMContentLoaded', initApp);
 
