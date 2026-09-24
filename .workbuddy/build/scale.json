@@ -1,0 +1,37 @@
+[
+  {
+    "Catalogue page 1": 2.454,
+    "Keyword search (LIKE on two columns)": 2.473,
+    "Category filter + sort by price": 2.433,
+    "_rows": 100,
+    "_db_bytes": 53248
+  },
+  {
+    "Catalogue page 1": 2.462,
+    "Keyword search (LIKE on two columns)": 2.491,
+    "Category filter + sort by price": 2.428,
+    "_rows": 250,
+    "_db_bytes": 69632
+  },
+  {
+    "Catalogue page 1": 2.558,
+    "Keyword search (LIKE on two columns)": 2.581,
+    "Category filter + sort by price": 2.532,
+    "_rows": 500,
+    "_db_bytes": 94208
+  },
+  {
+    "Catalogue page 1": 2.549,
+    "Keyword search (LIKE on two columns)": 2.644,
+    "Category filter + sort by price": 2.518,
+    "_rows": 1000,
+    "_db_bytes": 147456
+  },
+  {
+    "Catalogue page 1": 2.746,
+    "Keyword search (LIKE on two columns)": 2.86,
+    "Category filter + sort by price": 2.627,
+    "_rows": 2000,
+    "_db_bytes": 253952
+  }
+]
