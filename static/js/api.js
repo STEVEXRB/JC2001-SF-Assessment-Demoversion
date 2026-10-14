@@ -1,25 +1,58 @@
 // api.js - wraps backend API requests
 const API = {
-    // Generic request method
-    async request(url, method = 'GET', body = null, isForm = false) {
-        const options = {
+    baseURL: '',
+
+    async request(url, method = 'GET', body = null, isForm = false, options = {}) {
+        const headers = { ...(options.headers || {}) };
+        const fetchOptions = {
             method,
-            headers: {}
+            credentials: 'include',
+            headers,
+            ...options
         };
-        if (body) {
+
+        if (body !== null && body !== undefined) {
             if (isForm) {
-                options.body = body;
+                fetchOptions.body = body;
             } else {
-                options.headers['Content-Type'] = 'application/json';
-                options.body = JSON.stringify(body);
+                headers['Content-Type'] = headers['Content-Type'] || 'application/json; charset=utf-8';
+                fetchOptions.body = JSON.stringify(body);
             }
         }
-        const response = await fetch(url, options);
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.msg || 'Request failed');
+
+        const finalUrl = url.startsWith('http') ? url : `${this.baseURL}${url}`;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), options.timeout || 10000);
+        fetchOptions.signal = controller.signal;
+
+        try {
+            const response = await fetch(finalUrl, fetchOptions);
+
+            const contentType = (response.headers.get('content-type') || '').toLowerCase();
+            const rawText = await response.text();
+            const data = rawText && contentType.includes('application/json')
+                ? JSON.parse(rawText)
+                : (rawText || null);
+
+            if (!response.ok) {
+                const msg =
+                    (data && (data.msg || data.error || data.message || data.detail)) ||
+                    rawText ||
+                    'Request failed';
+
+                throw new Error(msg || 'Request failed');
+            }
+
+            return data;
+        } catch (error) {
+            if (error && error.name === 'AbortError') {
+                throw new Error('Request timed out');
+            }
+            throw error instanceof Error ? error : new Error('Request failed');
+        } finally {
+            clearTimeout(timeoutId);
         }
-        return data;
     },
 
     // User related
@@ -29,9 +62,12 @@ const API = {
     getMe() { return this.request('/api/user/me'); },
 
     // Product related
-    getItems(params) {
-        const query = new URLSearchParams(params).toString();
-        return this.request(`/api/items?${query}`);
+    getItems(params = {}) {
+        const safeParams = Object.fromEntries(
+            Object.entries(params).filter(([, value]) => value !== null && value !== undefined && value !== '')
+        );
+        const query = new URLSearchParams(safeParams).toString();
+        return this.request(query ? `/api/items?${query}` : '/api/items');
     },
     getItemDetail(id) { return this.request(`/api/items/${id}`); },
     createItem(itemData) { return this.request('/api/items', 'POST', itemData); },
