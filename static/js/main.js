@@ -16,6 +16,7 @@ let currentProfileTab = 'items';
 let favoriteIds = new Set();
 let selectedImageFiles = [];
 let pendingChat = null; // { id, name }
+let itemsRequestToken = 0;
 
 const CATEGORY_LABELS = {
     textbook: 'Textbook',
@@ -42,6 +43,7 @@ const STATUS_LABELS = {
 const MAX_IMAGES = 3;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
+let searchDebounceTimer = null;
 // ----------------------------- Small helpers -----------------------------
 const $ = id => document.getElementById(id);
 
@@ -229,11 +231,22 @@ function bindEvents() {
     });
 
     // Search
-    $('search-form').addEventListener('submit', e => {
-        e.preventDefault();
-        currentPage = 1;
-        loadItems();
+    const searchInput = $('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+            currentPage = 1;
+            loadItems();
+        }, 300);
     });
+}
+
+$('search-form').addEventListener('submit', e => {
+    e.preventDefault();
+    currentPage = 1;
+    loadItems();
+});
 
     // Category filter
     $('category-chips').addEventListener('click', e => {
@@ -386,30 +399,44 @@ function showItemSkeleton() {
 }
 
 async function loadItems() {
-    const keyword = $('search-input').value.trim();
-    const sort = $('sort-select').value;
+    const token = ++itemsRequestToken;
     showItemSkeleton();
 
     try {
+        const keyword = $('search-input')?.value.trim() || '';
+        const sort = $('sort-select')?.value || 'newest';
+
         const res = await API.getItems({
             keyword,
-            category: currentCategory,
+            category: currentCategory || undefined,
             sort,
             page: currentPage,
             status: 'ON_SALE'
         });
-        const data = res.data || {};
-        totalPages = data.total_pages || 1;
-        if (currentPage > totalPages) currentPage = totalPages;
 
-        renderItems(data.items || []);
-        updatePagination(data.total || 0);
-        $('stat-on-sale').textContent = data.total || 0;
+        if (token !== itemsRequestToken) return;
+
+        const payload = res && typeof res === 'object' ? res : {};
+        const items = Array.isArray(payload.items)
+            ? payload.items
+            : Array.isArray(payload.data)
+                ? payload.data
+                : Array.isArray(payload)
+                    ? payload
+                    : [];
+
+        const totalFromApi = Number(payload.totalPages ?? payload.total_pages ?? payload.total ?? 1);
+        totalPages = Number.isFinite(totalFromApi) && totalFromApi > 0 ? totalFromApi : 1;
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages || 1;
+        }
+
+        renderItems(items);
+        updatePagination(Number(payload.total ?? items.length));
     } catch (err) {
+        if (token !== itemsRequestToken) return;
         renderEmptyState('Could not load listings', err.message || 'Please try again in a moment');
-        $('page-nums').innerHTML = '';
-        $('page-info').textContent = '';
-        $('result-count').textContent = '';
     }
 }
 
